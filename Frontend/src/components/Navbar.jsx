@@ -1,0 +1,102 @@
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../features/auth/authSlice";
+
+export const Navbar = () => {
+  //const token = localStorage.getItem("token") || "";
+  const navigate = useNavigate();
+  const location = useLocation();
+  const path = location.pathname.toLowerCase();
+
+  // get user + token from redux
+  const { user, token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  if (!token && path !== "/login" && path !== "/register") {
+    navigate("/login");
+  }
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login", { replace: true });
+  };
+
+  return (
+    <nav className="navbar">
+      <h2>My College</h2>
+      <ul>
+        {token ? (
+          <>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            {/* Role wise menus */}
+            {user?.role === "STUDENT" && (
+              <>
+                <li>
+                  <Link to="/program">Program</Link>
+                </li>
+                <li>
+                  <Link to="/course">Course</Link>
+                </li>
+                <li>
+                  <Link to="/enrollment">Enrollment</Link>
+                </li>
+              </>
+            )}
+            {user?.role === "FACULTY" && (
+              <>
+                <li>
+                  <Link to="/course">Course</Link>
+                </li>
+                <li>
+                  <Link to="/notice">Notice</Link>
+                </li>
+              </>
+            )}
+            {user?.role === "ADMIN" && (
+              <>
+                <li>
+                  <Link to="/program">Program</Link>
+                </li>
+                <li>
+                  <Link to="/course">Course</Link>
+                </li>
+                <li>
+                  <Link to="/enrollment">Enrollment</Link>
+                </li>
+                <li>
+                  <Link to="/notice">Notice</Link>
+                </li>
+                <li>
+                  <Link to="/event">Event</Link>
+                </li>
+                <li>
+                  <Link to="/contact-message">Contact Message</Link>
+                </li>
+              </>
+            )}
+            {user?.role === "ALUMNI" && (
+              <>
+                <li>
+                  <Link to="/event">Event</Link>
+                </li>
+              </>
+            )}
+            <li>
+              <Link onClick={handleLogout}>Logout</Link>
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <Link to="/register">Register</Link>
+            </li>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+          </>
+        )}
+      </ul>
+    </nav>
+  );
+};

@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  FACULTY
+  ADMIN
+  ALUMNI
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  fullName    String
+  email       String       @unique
+  password    String
+  imageUrl    String
+  role        Role         @default(STUDENT)
+  dateJoined  DateTime     @default(now())
+  enrollments Enrollment[]
+  notices     Notice[]     @relation("AuthorNotices")
+  Course      Course[]
+}
+
+model Program {
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  description   String
+  durationYears Int
+  courses       Course[]
+}
+
+model Course {
+  id          Int          @id @default(autoincrement())
+  code        String       @unique
+  title       String
+  description String
+  programId   Int
+  program     Program      @relation(fields: [programId], references: [id])
+  teacherId   Int
+  user        User         @relation(fields: [teacherId], references: [id])
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  courseId    Int
+  user        User     @relation(fields: [userId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, courseId])
+}
+
+model Notice {
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String
+  visible   Boolean  @default(true)
+  authorId  Int
+  author    User     @relation("AuthorNotices", fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Event {
+  id        Int      @id @default(autoincrement())
+  title     String
+  details   String
+  date      DateTime
+  location  String
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}

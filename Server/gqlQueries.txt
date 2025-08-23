@@ -1,0 +1,86 @@
+mutation ($input: SignupInput!) {
+  signup(input: $input) {
+    token
+    user {
+      id
+      fullName
+      email
+      imageUrl
+      role
+    }
+  }
+}
+
+{
+  "input": {
+   "fullName": "Alice Johnson",
+    "email": "alice.johnson@example.com",
+    "password": "Password123",
+    "imageUrl": "AliceJohnson.jpg",
+    "role":"STUDENT"
+  }
+}
+
+mutation($input: LoginInput!){
+  login(input: $input) {
+    token
+    user {
+      id
+      fullName
+      role
+    }
+  }
+}
+
+{
+  "input": {
+    "email": "alice.johnson@example.com",
+    "password": "Password123",
+  }
+}
+
+mutation($input: ProgramInput!){
+  createProgram(input: $input) {
+    id
+    name
+    description
+    durationYears
+  }
+}
+
+{
+  "input": {
+    "name": "Master of Business Administration",
+    "description": "A 2-year postgraduate program in Business Administration.",
+    "durationYears": 2
+  }
+}
+
+Queries..
+=============
+1.Get all users list
+query{
+  users {
+    id
+    fullName
+    email
+    imageUrl
+    role
+  }
+}
+
+2. Get user by id
+query ($userId: ID!) {
+  user(id: $userId) {
+    id
+    fullName
+    email
+    imageUrl
+    role
+  }
+}
+
+{
+  "userId": "3"
+}
+
