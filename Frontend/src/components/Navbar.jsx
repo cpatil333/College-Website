@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/auth/authSlice";
+import { useEffect } from "react";
 
 export const Navbar = () => {
   //const token = localStorage.getItem("token") || "";
@@ -11,10 +12,14 @@ export const Navbar = () => {
   // get user + token from redux
   const { user, token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  //console.log(user);
+  // ✅ redirect only inside useEffect
+  useEffect(() => {
+    if (!token && path !== "/login" && path !== "/register") {
+      navigate("/login");
+    }
+  }, [token, path, navigate]);
 
-  if (!token && path !== "/login" && path !== "/register") {
-    navigate("/login");
-  }
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login", { replace: true });
@@ -33,33 +38,33 @@ export const Navbar = () => {
             {user?.role === "STUDENT" && (
               <>
                 <li>
-                  <Link to="/program">Program</Link>
+                  <Link to="/student-program">Program</Link>
                 </li>
                 <li>
-                  <Link to="/course">Course</Link>
+                  <Link to="/student-course">Course</Link>
                 </li>
                 <li>
-                  <Link to="/enrollment">Enrollment</Link>
+                  <Link to="/student-enrollment">Enrollment</Link>
                 </li>
               </>
             )}
             {user?.role === "FACULTY" && (
               <>
                 <li>
-                  <Link to="/course">Course</Link>
+                  <Link to="/faculty-courses">Course</Link>
                 </li>
                 <li>
-                  <Link to="/notice">Notice</Link>
+                  <Link to="/faculty-notices">Notice</Link>
                 </li>
               </>
             )}
             {user?.role === "ADMIN" && (
               <>
                 <li>
-                  <Link to="/program">Program</Link>
+                  <Link to="/programs">Program</Link>
                 </li>
                 <li>
-                  <Link to="/course">Course</Link>
+                  <Link to="/courses">Course</Link>
                 </li>
                 <li>
                   <Link to="/enrollment">Enrollment</Link>

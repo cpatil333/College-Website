@@ -21,6 +21,109 @@ export const resolvers = {
         where: { id: userId },
       });
     },
+
+    programs: async (parent: any, args: any, ctx: Context) => {
+      return ctx.prisma.program.findMany();
+    },
+
+    program: async (parent: any, { id }: any, ctx: Context) => {
+      const programId = parseInt(id);
+      return ctx.prisma.program.findUnique({
+        where: { id: programId },
+      });
+    },
+
+    eduCourses: async (parent: any, args: any, ctx: Context) => {
+      return ctx.prisma.course.findMany();
+    },
+
+    course: async (parent: any, { id }: any, ctx: Context) => {
+      const courseId = parseInt(id);
+      return ctx.prisma.course.findUnique({
+        where: { id: courseId },
+      });
+    },
+
+    notices: async (parent: any, args: any, ctx: Context) => {
+      requiredRole(ctx, ["STUDENT", "ADMIN", "FACULTY"]); // ✅ check multiple roles
+
+      let role = ctx.user?.role;
+      const userId = ctx.user?.id;
+
+      let whereClause: any = { targetRole: "ALL" };
+
+      if (role === "STUDENT") {
+        whereClause = {
+          OR: [
+            { targetRole: "STUDENT" },
+            { targetRole: "ALL" },
+            {
+              AND: [{ course: { enrollments: { some: { userId } } } }],
+            },
+          ],
+        };
+      } else if (role === "FACULTY") {
+        whereClause = {
+          OR: [
+            { targetRole: "FACULTY" },
+            { targetRole: "ALL" },
+            {
+              AND: [{ course: { teacherId: userId } }],
+            },
+          ],
+        };
+      } else if (role === "ADMIN") {
+        // maybe admin sees all
+        whereClause = {};
+      }
+
+      return ctx.prisma.notice.findMany({
+        where: whereClause,
+        include: {
+          course: {
+            include: {
+              enrollments: {
+                include: { user: true },
+              },
+            },
+          },
+        },
+      });
+    },
+
+    programOptions: async (parent: any, args: any, ctx: Context) => {
+      return ctx.prisma.program.findMany();
+    },
+
+    teacherOptions: async (parent: any, args: any, ctx: Context) => {
+      return ctx.prisma.user.findMany();
+    },
+
+    facultyCourses: async (parent: any, { teacherId }: any, ctx: Context) => {
+      return ctx.prisma.course.findMany({
+        where: { teacherId: parseInt(teacherId) },
+        include: {
+          enrollments: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+    },
+  },
+
+  Course: {
+    program: async (parent: any, args: any, ctx: Context) => {
+      return ctx.prisma.program.findMany({
+        where: { id: parent.programId },
+      });
+    },
+    teacher: async (parent: any, args: any, ctx: Context) => {
+      return ctx.prisma.user.findMany({
+        where: { id: parent.teacherId },
+      });
+    },
   },
 
   Mutation: {
@@ -40,7 +143,10 @@ export const resolvers = {
           password: hashed,
         },
       });
-      return { token: sign({ id: user.id, role: user.role }), user };
+      return {
+        token: sign({ id: user.id, fullName: user.fullName, role: user.role }),
+        user,
+      };
     },
 
     login: async (parent: any, { input }: any, ctx: Context) => {
@@ -57,13 +163,139 @@ export const resolvers = {
       if (!matchedPassword) {
         throw new Error("Invalid credentials!");
       }
-      return { token: sign({ id: user.id, role: user.role }), user };
+      return {
+        token: sign({ id: user.id, fullName: user.fullName, role: user.role }),
+        user,
+      };
+    },
+
+    editUser: async (parent: any, { input }: any, ctx: Context) => {
+      requiredRole(ctx, ["ADMIN"]);
+      const userId = parseInt(input.id);
+      const user = await ctx.prisma.user.findUnique({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new Error("User does not exist!");
+      }
+      const hassed = await bcrypt.hash(input.password, 10);
+
+      return await ctx.prisma.user.update({
+        where: { id: userId },
+        data: {
+          fullName: input.fullName,
+          email: input.email,
+          password: hassed,
+          role: input.role,
+        },
+      });
+    },
+
+    deleteUser: async (parent: any, { id }: any, ctx: Context) => {
+      requiredRole(ctx, ["ADMIN"]);
+      const userId = parseInt(id);
+      const user = await ctx.prisma.user.findUnique({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new Error("User does not exist!");
+      }
+      return await ctx.prisma.user.delete({
+        where: { id: userId },
+      });
     },
 
     createProgram: (parent: any, { input }: any, ctx: Context) => {
       requiredRole(ctx, ["ADMIN"]);
       return ctx.prisma.program.create({
         data: { ...input },
+      });
+    },
+
+    updateProgram: async (parent: any, { input }: any, ctx: Context) => {
+      requiredRole(ctx, ["ADMIN"]);
+      const programId = parseInt(input.id);
+
+      const program = await ctx.prisma.program.findUnique({
+        where: { id: programId },
+      });
+
+      if (!program) {
+        throw new Error("Program does not exist!");
+      }
+      return ctx.prisma.program.update({
+        where: { id: programId },
+        data: {
+          name: input.name,
+          description: input.description,
+          durationYears: input.durationYears,
+        },
+      });
+    },
+
+    createCourse: async (parent: any, { input }: any, ctx: Context) => {
+      requiredRole(ctx, ["ADMIN"]);
+      return ctx.prisma.course.create({
+        data: {
+          code: input.code,
+          title: input.title,
+          description: input.description,
+          programId: parseInt(input.programId),
+          teacherId: parseInt(input.teacherId),
+        },
+      });
+    },
+
+    updateCourse: async (parent: any, { input }: any, ctx: Context) => {
+      requiredRole(ctx, ["ADMIN"]);
+      return ctx.prisma.course.update({
+        where: { id: parseInt(input.id) },
+        data: {
+          code: input.code,
+          title: input.title,
+          description: input.description,
+          programId: parseInt(input.programId),
+          teacherId: parseInt(input.teacherId),
+        },
+      });
+    },
+
+    postNotice: async (parent: any, { input }: any, ctx: Context) => {
+      requiredRole(ctx, ["FACULTY"]);
+      return ctx.prisma.notice.create({
+        data: {
+          ...input,
+        },
+      });
+    },
+
+    createEvent: async (parent: any, { input }: any, ctx: Context) => {
+      requiredRole(ctx, ["FACULTY"]);
+      return ctx.prisma.event.create({
+        data: {
+          ...input,
+        },
+      });
+    },
+
+    enroll: async (parent: any, { courseId, input }: any, ctx: Context) => {
+      requiredRole(ctx, ["STUDENT"]);
+      return ctx.prisma.enrollment.create({
+        data: {
+          courseId: parseInt(courseId),
+          userId: parseInt(input.userId),
+          isCompleted: input.isCompleted,
+        },
+      });
+    },
+
+    contact: async (parent: any, { input }: any, ctx: Context) => {
+      return ctx.prisma.contactMessage.create({
+        data: {
+          name: input.name,
+          email: input.email,
+          message: input.message,
+        },
       });
     },
   },

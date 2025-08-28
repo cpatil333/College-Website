@@ -18,6 +18,7 @@ enum Role {
   FACULTY
   ADMIN
   ALUMNI
+  ALL
 }
 
 model User {
@@ -31,6 +32,7 @@ model User {
   enrollments Enrollment[]
   notices     Notice[]     @relation("AuthorNotices")
   Course      Course[]
+  Event       Event[]
 }
 
 model Program {
@@ -51,6 +53,7 @@ model Course {
   teacherId   Int
   user        User         @relation(fields: [teacherId], references: [id])
   enrollments Enrollment[]
+  Notice      Notice[]
 }
 
 model Enrollment {
@@ -66,13 +69,16 @@ model Enrollment {
 }
 
 model Notice {
-  id        Int      @id @default(autoincrement())
-  title     String
-  body      String
-  visible   Boolean  @default(true)
-  authorId  Int
-  author    User     @relation("AuthorNotices", fields: [authorId], references: [id])
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  title      String
+  body       String
+  visible    Boolean  @default(true)
+  authorId   Int
+  author     User     @relation("AuthorNotices", fields: [authorId], references: [id])
+  targetRole Role? // NEW - optional: who the notice is for (STUDENT, FACULTY, ADMIN, ALL)
+  courseId   Int? // NEW - optional: course specific
+  course     Course?  @relation(fields: [courseId], references: [id])
+  createdAt  DateTime @default(now())
 }
 
 model Event {
@@ -80,7 +86,8 @@ model Event {
   title     String
   details   String
   date      DateTime
-  location  String
+  authorId  Int
+  user      User     @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now())
 }
 

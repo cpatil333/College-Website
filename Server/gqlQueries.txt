@@ -34,9 +34,41 @@ mutation($input: LoginInput!){
 
 {
   "input": {
-    "email": "alice.johnson@example.com",
+    "email": "admin@example.com",
     "password": "Password123",
   }
+}
+
+mutation($input: UpdateUserInput!){
+  editUser(input: $input) {
+    id
+    fullName
+    email
+    imageUrl
+    role
+  }
+}
+
+{
+  "input": {
+      "id": 3,
+      "fullName": "Admin new User",
+      "email": "admin@example.com",
+      "password": "Password123",
+      "imageUrl": "AdminUser.jpg",
+      "role": "ADMIN",
+  }
+}
+mutation($deleteUserId: ID!){
+  deleteUser(id: $deleteUserId) {
+    id
+    fullName
+    email
+  }
+}
+
+{
+  "deleteUserId": 7
 }
 
 mutation($input: ProgramInput!){
@@ -53,6 +85,127 @@ mutation($input: ProgramInput!){
     "name": "Master of Business Administration",
     "description": "A 2-year postgraduate program in Business Administration.",
     "durationYears": 2
+  }
+}
+
+mutation ($input: ProgramUpdateInput!) {
+  updateProgram(input: $input) {
+    id
+    name
+    description
+    durationYears
+  }
+}
+
+mutation($input: CourseInput!){
+  createCourse(input: $input) {
+    id
+    code
+    teacherId
+    description
+    programId
+    teacherId
+  }
+}
+
+{
+  "input": {
+    "code": "ITP",
+    "title": "Introduction to Programming",
+    "description": "Learn the basics of programming using Python.",
+    "programId": 1,
+    "teacherId": 9,
+  }
+}
+
+mutation($input: CourseUpdateInput!){
+  updateCourse(input: $input) {
+    id
+    code
+    title
+    description
+    programId
+    teacherId
+  }
+}
+
+{
+  "input": {
+    "id": "1",
+    "code": "ITPP",
+    "title": "Introduction to Programming",
+    "description": "Learn the basics of programming using Python.",
+    "programId": 1,
+    "teacherId": 9,
+  }
+}
+
+mutation($input: NoticeInput!){
+  postNotice(input: $input) {
+     id
+    title
+    body
+    visible
+    courseId
+    targetRole
+    authorId
+  }
+}
+
+{
+  "input": {
+    "title": "Holiday Announcement",
+    "body": "The college will remain closed on March 25th for Holi Festival..",
+    "authorId": 11,
+    "visible":true,
+    "courseId": 2,
+    "targetRole":"FACULTY"
+  }
+}
+
+mutation($input: EventInput!){
+  createEvent(input: $input) {
+    id
+    title
+    details
+    date
+    authorId
+  }
+}
+
+{
+  "input": {
+    "title": "Tech Fest 2025",
+    "details": "Annual technical festival with coding competitions, hackathons, and workshops.",
+    "date": "2025-08-26T07:44:23.584Z",
+    "authorId": 9,
+  }
+}
+
+mutation ($courseId: ID!, $input: EnrollInput!) {
+  enroll(courseId: $courseId, input: $input) {
+    id
+    courseId
+    userId
+  }
+}
+
+{  "courseId": 1,
+  "input": {
+    "userId": 8,
+    "isCompleted":false
+  }
+}
+
+mutation($input: ContactInput!){
+  contact(input: $input)
+}
+
+{
+  "input": {
+    "name": "chandrashekhar",
+    "email": "chand@test.com",
+    "message": "React Router course"
   }
 }
 
@@ -82,5 +235,111 @@ query ($userId: ID!) {
 
 {
   "userId": "3"
+}
+
+3.Get all programs
+query {
+  programs {
+    id
+    name
+    description
+    durationYears
+  }
+}
+
+4.Get program by ID
+query ($programId: ID!) {
+  program(id: $programId) {
+    id
+    name
+    description
+    durationYears
+  }
+}
+
+{
+  "programId": 2
+}
+
+5.Get Course list
+query{
+  eduCourses {
+    id
+    code
+    title
+    description
+    programId
+    teacherId
+  }
+}
+
+6.Get Course by ID
+query ($courseId: ID!) {
+  course(id: $courseId) {
+    id
+    code
+    title
+    description
+    programId
+  }
+}
+
+{
+  "courseId": 1
+}
+
+7.Get Notices
+query {
+  notices {
+    id
+    title
+    body
+    course {
+      title
+      enrollments {
+        user {
+          id
+          fullName
+          email
+        }
+      }
+    }
+  }
+}
+
+8. Get Programs list for dropdownlist
+query{
+  programOptions {
+    id
+    name
+  }
+}
+
+9. Get User/Teacher list for dropdownlist
+query{
+  teacherOptions {
+    id
+    fullName
+  } 
+}
+
+10. Get faculty Courses after login
+query ($teacherId: Int!) {
+  facultyCourses(teacherId: $teacherId) {
+    id
+    title
+    enrollments {
+      user {
+        id
+        fullName
+        email
+        role
+      }
+    }
+  }
+}
+
+{
+  "teacherId": 9
 }
 

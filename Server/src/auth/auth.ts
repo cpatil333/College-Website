@@ -7,7 +7,8 @@ const SECRET = process.env.SECRET_KEY!;
 
 export type JwtUser = {
   id: number;
-  role: "STUDENT" | "FACULTY" | "ADMIN" | "ALUMNI";
+  fullName: string;
+  role: "STUDENT" | "FACULTY" | "ADMIN" | "ALUMNI" | "ALL";
 };
 
 export function sign(user: JwtUser) {
