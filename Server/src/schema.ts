@@ -68,6 +68,8 @@ export const typeDefs = gql`
     details: String!
     date: DateTime!
     authorId: Int!
+    user: User!
+    targetRole: String!
   }
 
   type ContactMessage {
@@ -127,6 +129,7 @@ export const typeDefs = gql`
     programId: Int!
     teacherId: Int!
   }
+  
   input NoticeInput {
     title: String!
     body: String!
@@ -140,6 +143,7 @@ export const typeDefs = gql`
     details: String!
     date: String!
     authorId: Int!
+    targetRole: String!
   }
   input EnrollInput {
     userId: Int!
@@ -161,10 +165,11 @@ export const typeDefs = gql`
     courses(programId: ID): [Course!]!
     # notices: [Notice!]!
     notices: [Notice!]! @auth(role: [STUDENT, ADMIN, FACULTY])
-    events(upcomingOnly: Boolean = true): [Event!]!
+    upcomingEvents(upcomingOnly: Boolean = true): [Event!]!
     programOptions: [Program!]!
     teacherOptions: [User!]!
     facultyCourses(teacherId: Int!): [Course!]!
+    events: [Event!]! @auth(role: [STUDENT, ADMIN, FACULTY])
   }
 
   type Mutation {

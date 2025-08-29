@@ -343,3 +343,35 @@ query ($teacherId: Int!) {
   "teacherId": 9
 }
 
+11. Get events after login
+query{
+  events {
+    id
+    title
+    details
+    targetRole
+    authorId
+    user {
+      id
+      fullName
+      role
+    }
+  }
+}
+
+11. Get upcoming Events after login
+ query {
+  upcomingEvents {
+    id
+    title
+    details
+    targetRole
+    authorId
+    date
+    user {
+      id
+      fullName
+      role
+    }
+  }
+}

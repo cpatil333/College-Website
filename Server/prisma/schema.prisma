@@ -82,13 +82,14 @@ model Notice {
 }
 
 model Event {
-  id        Int      @id @default(autoincrement())
-  title     String
-  details   String
-  date      DateTime
-  authorId  Int
-  user      User     @relation(fields: [authorId], references: [id])
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  title      String
+  details    String
+  date       DateTime
+  authorId   Int
+  user       User     @relation(fields: [authorId], references: [id])
+  targetRole String   @default("STUDENT") // "STUDENT" | "ADMIN" | "ALL"
+  createdAt  DateTime @default(now())
 }
 
 model ContactMessage {

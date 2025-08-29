@@ -125,6 +125,44 @@ export declare const resolvers: {
             title: string;
             programId: number;
         })[]>;
+        events: (parent: any, args: any, ctx: Context) => Promise<({
+            user: {
+                imageUrl: string;
+                id: number;
+                fullName: string;
+                email: string;
+                password: string;
+                role: import("@prisma/client").$Enums.Role;
+                dateJoined: Date;
+            };
+        } & {
+            id: number;
+            title: string;
+            authorId: number;
+            targetRole: string;
+            createdAt: Date;
+            details: string;
+            date: Date;
+        })[]>;
+        upcomingEvents: (parent: any, { upcomingOnly }: any, ctx: Context) => Promise<({
+            user: {
+                imageUrl: string;
+                id: number;
+                fullName: string;
+                email: string;
+                password: string;
+                role: import("@prisma/client").$Enums.Role;
+                dateJoined: Date;
+            };
+        } & {
+            id: number;
+            title: string;
+            authorId: number;
+            targetRole: string;
+            createdAt: Date;
+            details: string;
+            date: Date;
+        })[]>;
     };
     Course: {
         program: (parent: any, args: any, ctx: Context) => Promise<{
@@ -228,6 +266,7 @@ export declare const resolvers: {
             id: number;
             title: string;
             authorId: number;
+            targetRole: string;
             createdAt: Date;
             details: string;
             date: Date;

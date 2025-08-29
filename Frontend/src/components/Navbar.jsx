@@ -56,6 +56,9 @@ export const Navbar = () => {
                 <li>
                   <Link to="/faculty-notices">Notice</Link>
                 </li>
+                <li>
+                  <Link to="/event">Event</Link>
+                </li>
               </>
             )}
             {user?.role === "ADMIN" && (

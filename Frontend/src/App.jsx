@@ -24,6 +24,9 @@ import { FacultyNotices } from "./pages/faculty/FacultyNotices";
 import { getNotices } from "./API/getNotices";
 import { FacultyCourses } from "./pages/faculty/FacultyCourses";
 import { getFacultyCourses } from "./API/getFacultyCourses";
+import { Events } from "./pages/faculty/Events";
+import { getEvents } from "./API/getEvents";
+
 function App() {
   const router = createBrowserRouter([
     {
@@ -89,6 +92,11 @@ function App() {
           path: "/faculty-notices",
           element: <FacultyNotices />,
           loader: getNotices,
+        },
+        {
+          path: "/event",
+          element: <Events />,
+          loader: getEvents,
         },
         {
           path: "/edit-course/:id",

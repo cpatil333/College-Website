@@ -135,3 +135,20 @@ export const GET_FACULTY_COURSES = gql`
     }
   }
 `;
+
+export const GET_EVENTS = gql`
+  query {
+    events {
+      id
+      title
+      details
+      targetRole
+      authorId
+      user {
+        id
+        fullName
+        role
+      }
+    }
+  }
+`;

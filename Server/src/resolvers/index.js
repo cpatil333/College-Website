@@ -96,6 +96,61 @@ export const resolvers = {
                 },
             });
         },
+        events: async (parent, args, ctx) => {
+            requiredRole(ctx, ["STUDENT", "ADMIN", "FACULTY"]);
+            const role = ctx.user?.role;
+            let whereClause = { targetRole: "ALL" };
+            if (role === "STUDENT") {
+                whereClause = {
+                    OR: [{ targetRole: "STUDENT" }, { targetRole: "ALL" }],
+                };
+            }
+            else if (role === "FACULTY") {
+                // Faculty can see their own + ALL
+                whereClause = {
+                    OR: [
+                        { targetRole: "FACULTY" },
+                        { targetRole: "ALL" },
+                        { authorId: ctx.user?.id },
+                    ],
+                };
+            }
+            else if (role === "ADMIN") {
+                whereClause = {};
+            }
+            return ctx.prisma.event.findMany({
+                where: whereClause,
+                include: { user: true },
+                orderBy: { date: "desc" },
+            });
+        },
+        upcomingEvents: async (parent, { upcomingOnly }, ctx) => {
+            const role = ctx.user?.role; // "ADMIN", "STUDENT", "FACULTY"
+            if (!role)
+                throw new Error("Unauthorized");
+            // base filter
+            let where = {};
+            if (upcomingOnly) {
+                where.date = { gte: new Date() }; // only future events
+            }
+            if (role === "ADMIN") {
+                where.targetRole = { in: ["ADMIN", "STUDENT", "ALL"] };
+            }
+            else if (role === "STUDENT") {
+                where.targetRole = { in: ["STUDENT", "ALL"] };
+            }
+            else if (role === "FACULTY") {
+                // faculty can see their own created events
+                where.authorId = ctx.user?.id;
+            }
+            return ctx.prisma.event.findMany({
+                where,
+                include: {
+                    user: true,
+                },
+                orderBy: { date: "asc" },
+            });
+        },
     },
     Course: {
         program: async (parent, args, ctx) => {
