@@ -12,7 +12,10 @@ function requiredRole(ctx: Context, roles: String[]) {
 export const resolvers = {
   Query: {
     users: (parent: any, agrs: any, ctx: Context) => {
-      return ctx.prisma.user.findMany();
+      return ctx.prisma.user.findMany({
+        take: 4,
+        orderBy: { id: "asc" },
+      });
     },
 
     user: async (parent: any, { id }: any, ctx: Context) => {
@@ -175,6 +178,34 @@ export const resolvers = {
         },
         orderBy: { date: "asc" },
       });
+    },
+
+    userPagination: async (parent: any, { options }: any, ctx: Context) => {
+      requiredRole(ctx, ["STUDENT", "ADMIN", "FACULTY"]);
+      const { page, limit } = options;
+
+      const skip = (page - 1) * limit;
+
+      //count total users
+      const totalItems = await ctx.prisma.user.count();
+
+      //fetch user for current page
+      const items = await ctx.prisma.user.findMany({
+        skip,
+        take: limit,
+      });
+
+      //count for number of pages
+      const totalPages = Math.ceil(totalItems / limit);
+
+      return {
+        items,
+        totalItems,
+        totalPages,
+        currentPage: page,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      };
     },
   },
 

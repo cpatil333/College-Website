@@ -4,7 +4,6 @@ import { logout } from "../features/auth/authSlice";
 import { useEffect } from "react";
 
 export const Navbar = () => {
-  //const token = localStorage.getItem("token") || "";
   const navigate = useNavigate();
   const location = useLocation();
   const path = location.pathname.toLowerCase();
@@ -12,7 +11,7 @@ export const Navbar = () => {
   // get user + token from redux
   const { user, token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  //console.log(user);
+
   // ✅ redirect only inside useEffect
   useEffect(() => {
     if (!token && path !== "/login" && path !== "/register") {
@@ -31,6 +30,9 @@ export const Navbar = () => {
       <ul>
         {token ? (
           <>
+            <li>
+              <span style={{ color: "white", fontSize:"20px" }}>Welcome, {user?.fullName}</span>
+            </li>
             <li>
               <Link to="/">Home</Link>
             </li>

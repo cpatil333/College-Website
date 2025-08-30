@@ -8,7 +8,10 @@ function requiredRole(ctx, roles) {
 export const resolvers = {
     Query: {
         users: (parent, agrs, ctx) => {
-            return ctx.prisma.user.findMany();
+            return ctx.prisma.user.findMany({
+                take: 4,
+                orderBy: { id: "asc" },
+            });
         },
         user: async (parent, { id }, ctx) => {
             const userId = parseInt(id);
@@ -150,6 +153,28 @@ export const resolvers = {
                 },
                 orderBy: { date: "asc" },
             });
+        },
+        userPagination: async (parent, { options }, ctx) => {
+            requiredRole(ctx, ["STUDENT", "ADMIN", "FACULTY"]);
+            const { page, limit } = options;
+            const skip = (page - 1) * limit;
+            //count total users
+            const totalItems = await ctx.prisma.user.count();
+            //fetch user for current page
+            const items = await ctx.prisma.user.findMany({
+                skip,
+                take: limit,
+            });
+            //count for number of pages
+            const totalPages = Math.ceil(totalItems / limit);
+            return {
+                items,
+                totalItems,
+                totalPages,
+                currentPage: page,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1,
+            };
         },
     },
     Course: {

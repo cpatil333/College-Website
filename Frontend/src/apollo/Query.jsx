@@ -152,3 +152,21 @@ export const GET_EVENTS = gql`
     }
   }
 `;
+
+export const GET_USER_PAGINATION = gql`
+  query ($options: PaginateInput!) {
+    userPagination(options: $options) {
+      items {
+        id
+        fullName
+        email
+        role
+      }
+      totalItems
+      totalPages
+      currentPage
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+`;

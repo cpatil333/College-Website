@@ -129,7 +129,7 @@ export const typeDefs = gql`
     programId: Int!
     teacherId: Int!
   }
-  
+
   input NoticeInput {
     title: String!
     body: String!
@@ -145,16 +145,31 @@ export const typeDefs = gql`
     authorId: Int!
     targetRole: String!
   }
+
   input EnrollInput {
     userId: Int!
     isCompleted: Boolean
   }
+
   input ContactInput {
     name: String!
     email: String!
     message: String!
   }
 
+  type userPaginationResponse {
+    items: [User!]!
+    totalItems: Int!
+    totalPages: Int!
+    currentPage: Int!
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+  }
+
+  input PaginateInput {
+    page: Int!
+    limit: Int!
+  }
   type Query {
     users: [User!]!
     user(id: ID!): User
@@ -170,6 +185,7 @@ export const typeDefs = gql`
     teacherOptions: [User!]!
     facultyCourses(teacherId: Int!): [Course!]!
     events: [Event!]! @auth(role: [STUDENT, ADMIN, FACULTY])
+    userPagination(options: PaginateInput!): userPaginationResponse!
   }
 
   type Mutation {

@@ -375,3 +375,27 @@ query{
     }
   }
 }
+
+12. Get User Pagination
+query ($options: PaginateInput!) {
+  userPagination(options: $options) {
+    items {
+      id
+      fullName
+      email
+      role
+    }
+    totalItems
+    totalPages
+    currentPage
+    hasNextPage
+    hasPreviousPage
+  }
+}
+
+{
+  "options": {
+    "page": 1,
+    "limit": 5
+  }
+}

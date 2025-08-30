@@ -163,6 +163,22 @@ export declare const resolvers: {
             details: string;
             date: Date;
         })[]>;
+        userPagination: (parent: any, { options }: any, ctx: Context) => Promise<{
+            items: {
+                imageUrl: string;
+                id: number;
+                fullName: string;
+                email: string;
+                password: string;
+                role: import("@prisma/client").$Enums.Role;
+                dateJoined: Date;
+            }[];
+            totalItems: number;
+            totalPages: number;
+            currentPage: any;
+            hasNextPage: boolean;
+            hasPreviousPage: boolean;
+        }>;
     };
     Course: {
         program: (parent: any, args: any, ctx: Context) => Promise<{
